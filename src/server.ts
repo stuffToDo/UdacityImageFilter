@@ -36,6 +36,23 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
   app.get( "/", async ( req, res ) => {
     res.send("try GET /filteredimage?image_url={{}}")
   } );
+
+  app.get("/filteredimage", async(req, res) => {
+
+    const imageUrl = req.query.image_url;
+    if(!imageUrl) {
+      return res.status(400).send('image_url query parameter required!');
+    }
+
+    const filteredPath = await filterImageFromURL(imageUrl);
+    res.status(200).sendFile(filteredPath, err => {
+      if(err) {
+        res.status(500).send('error sending image!');
+      } else {
+        deleteLocalFiles([filteredPath]);
+      }
+    });
+  });
   
 
   // Start the Server
